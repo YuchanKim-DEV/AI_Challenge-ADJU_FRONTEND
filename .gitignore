@@ -1,0 +1,19 @@
+# deps / build
+node_modules/
+dist/
+*.log
+
+# env & secrets (서버 주소/포워딩 설정은 로컬만)
+.env
+.env.local
+*.pem
+*.ppk
+
+# 로컬 참고용 접속정보 (커밋 금지)
+docs/servers.md
+
+# OS
+.DS_Store
+
+# build info
+*.tsbuildinfo
