@@ -5,7 +5,8 @@ import type {
   UserRead,
 } from "./types";
 
-const BASE = (import.meta.env.VITE_API_BASE as string) || "/api";
+export const API_BASE = (import.meta.env.VITE_API_BASE as string) || "/api";
+const BASE = API_BASE;
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -31,8 +32,27 @@ export const api = {
     }
   },
 
-  async listUsers(): Promise<UserRead[]> {
-    return handle<UserRead[]>(await fetch(`${BASE}/users`));
+  async listUsers(skip = 0, limit = 100): Promise<UserRead[]> {
+    return handle<UserRead[]>(await fetch(`${BASE}/users?skip=${skip}&limit=${limit}`));
+  },
+
+  async getUser(userId: number): Promise<UserRead> {
+    return handle<UserRead>(await fetch(`${BASE}/users/${userId}`));
+  },
+
+  async updateUser(userId: number, patch: Partial<UserCreate>): Promise<UserRead> {
+    return handle<UserRead>(
+      await fetch(`${BASE}/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      }),
+    );
+  },
+
+  async deleteUser(userId: number): Promise<void> {
+    const res = await fetch(`${BASE}/users/${userId}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   },
 
   async createUser(payload: UserCreate): Promise<UserRead> {
