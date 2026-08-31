@@ -1,7 +1,8 @@
 # ADJU — AI 금융 부관 (Team ADJU)
 
 > 이 파일은 Claude Code가 이 폴더에서 실행될 때 자동으로 읽는 프로젝트 지침입니다.
-> 새 세션을 시작하면 먼저 이 파일과 `HANDOFF.md`를 읽으세요.
+> **새 세션 시작 시 반드시 이 파일 → `HANDOFF.md` 순으로 읽으세요.**
+> 서버 배포/운영 작업이면 `docs/deploy.md`도 함께 읽으세요.
 
 ## 프로젝트 개요
 - **제품명**: ADJU (AI 금융 부관) — 사용자가 가입한 보험상품·보험증권 내용을 기반으로
@@ -29,7 +30,7 @@
 
 | 서버 | 외부 IP | 서비스 | 포트 |
 | --- | --- | --- | --- |
-| WAS1 | 180.210.89.242 | (미배정) | - |
+| WAS1 | 180.210.89.242 | **프론트엔드** (docker nginx, `web` 계정) | 80 |
 | WAS2 | 180.210.78.147 | FastAPI (`adju-care-agent`), LLM 서빙(llama.cpp) | 18000, 8080 |
 | DB | 180.210.88.242 | PostgreSQL 16 + pgvector | 15432 |
 
@@ -46,10 +47,20 @@
 
 ## 이 리포 구조
 - `frontend/` — 화면 (Vite + React + TypeScript). 개발 실행: `cd frontend && npm install && npm run dev`
-- `docs/` — 서버/DB/API 문서
+  - `Dockerfile` / `nginx.conf.template` — 배포용 (2단계 빌드 → nginx 서빙 + `/api` 프록시)
+- `docs/` — 서버/DB/API 문서 + `deploy.md`(배포 절차·운영 명령어)
 - `HANDOFF.md` — 현재 진행 상황 (세션 시작 시 함께 읽기)
 
+## 서버 접속 (로컬 `~/.ssh/config`에 등록됨)
+```bash
+ssh was     # = was1, 프론트 서버. 접속 시 localhost:8000 → 배포 화면
+ssh was2    # FastAPI + LLM. 접속 시 localhost:18000 → Swagger
+ssh db      # PostgreSQL.   접속 시 localhost:15432
+```
+> 외부 포트는 SSH(30022)만 열려 있음. 80/18000은 인프라 단 차단 → 브라우저 직접 접속 불가.
+
 ## 작업 규칙
-- **커밋/푸시는 사람이 직접** — Claude가 임의로 git commit/push 하지 말 것 (요청 시에만).
+- **커밋 시 푸시까지** — 작업이 끝나면 commit에서 멈추지 말고 `git push`까지 완료할 것 (2026-08-31 변경).
+  커밋 메시지에 Claude 서명(Co-Authored-By 등)은 넣지 말 것.
 - 서버 작업은 읽기 확인 우선. 운영 서비스(WAS2/DB) 재시작·삭제 같은 파괴적 작업은 반드시 사전 확인.
 - 비밀번호/pem 키 등 시크릿은 이 리포에 커밋하지 말 것 (`.gitignore` 확인). `docs/servers.md`는 로컬 참고용.

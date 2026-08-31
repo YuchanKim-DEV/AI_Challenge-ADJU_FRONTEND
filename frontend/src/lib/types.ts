@@ -10,7 +10,13 @@ export interface UserCreate {
   other_income?: number | null;
 }
 
-export interface UserRead extends UserCreate {
+// 주의: 서버는 소득 필드를 Decimal → 문자열로 직렬화해서 돌려준다.
+//       (UserCreate는 숫자로 보내도 되지만, UserRead는 문자열로 온다)
+//       계산에 쓸 땐 반드시 Number(...)로 변환할 것.
+export interface UserRead extends Omit<UserCreate, "monthly_income" | "annual_income" | "other_income"> {
+  monthly_income?: string | null;
+  annual_income?: string | null;
+  other_income?: string | null;
   id: number;
   create_time: string;
   update_time: string;
@@ -33,7 +39,7 @@ export interface Source {
 
 export interface ChatResponse {
   answer: string;
-  sources: Source[];
+  sources?: Source[];   // 서버 스키마상 optional
 }
 
 // 프론트 내부 채팅 메시지 모델
