@@ -10,6 +10,12 @@ location /assets/ {
     add_header Cache-Control "public, immutable";
 }
 
+# Let's Encrypt 도메인 소유 확인용 (인증서 갱신 시 사용)
+location ^~ /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+    default_type "text/plain";
+}
+
 location / {
     try_files $uri $uri/ /index.html;
 }
