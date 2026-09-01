@@ -90,7 +90,20 @@ sudo ip route add 172.17.0.0/16 dev docker0 table 2   # ★ 빠뜨리면 접속 
 curl -s -o /dev/null -w "%{http_code}\n" http://180.210.89.242/    # 200
 ```
 
-> **현재 메모리에만 적용된 상태다.** 재부팅하면 사라지므로 영구화 필요.
+### 영구화 (2026-09-01 적용 완료)
+
+위 설정은 메모리에만 남으므로 systemd 서비스로 부팅 시 자동 적용되게 해두었다.
+
+- 스크립트: `/usr/local/bin/adju-routing.sh` (중복 실행해도 안전)
+- 유닛: `/etc/systemd/system/adju-routing.service` (`enabled` + `active`)
+- docker.service 이후에 실행됨 (docker0 인터페이스가 생긴 뒤여야 하므로)
+
+```bash
+systemctl status adju-routing        # 상태 확인
+sudo systemctl restart adju-routing  # 수동 재적용
+```
+
+> 검증: 라우팅을 일부러 삭제한 뒤 서비스 재실행 → 자동 복원, 외부 접속 200 확인.
 
 ## 운영 명령어
 

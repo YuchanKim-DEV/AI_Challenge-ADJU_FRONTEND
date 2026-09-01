@@ -72,9 +72,10 @@ https status=200 time=0.060
 api   status=200
 ```
 
-### ⚠️ 영구화 필요
-위 설정은 메모리에만 존재한다. **재부팅하면 사라진다.**
-`docs/deploy.md`의 "라우팅 영구 적용" 항목 참고.
+### 영구화 (완료)
+systemd 서비스 `adju-routing`으로 부팅 시 자동 적용된다.
+스크립트 `/usr/local/bin/adju-routing.sh`, 유닛 `/etc/systemd/system/adju-routing.service`.
+docker.service 이후 실행되도록 `Requires=docker.service`를 걸었다 (docker0이 있어야 하므로).
 
 ---
 
