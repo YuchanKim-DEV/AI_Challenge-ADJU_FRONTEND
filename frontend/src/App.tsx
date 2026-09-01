@@ -1,82 +1,60 @@
-import { useCallback, useEffect, useState } from "react";
-import ApiConsole from "./components/ApiConsole";
+import { useCallback, useState } from "react";
 import ChatPanel from "./components/ChatPanel";
-import CoveragePanel from "./components/CoveragePanel";
-import InsuranceInput from "./components/InsuranceInput";
-import SidePanel from "./components/SidePanel";
-import { api } from "./lib/api";
-import type { InsuranceProfile } from "./lib/insurance";
+import LoadingScreen from "./components/LoadingScreen";
+import PersonaSelect, { type Persona } from "./components/PersonaSelect";
+import UploadPanel from "./components/UploadPanel";
 
-type Tab = "coverage" | "panel" | "console";
+type Screen = "persona" | "loading" | "chat";
 
 export default function App() {
-  const [userId, setUserId] = useState<number | null>(null);
-  const [online, setOnline] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<Tab>("coverage");
+  const [screen, setScreen] = useState<Screen>("persona");
+  const [persona, setPersona] = useState<Persona | null>(null);
+  // 업로드된 문서를 챗봇에 알리기 위한 신호
+  const [uploaded, setUploaded] = useState<{ name: string; seq: number } | null>(null);
 
-  const [profile, setProfile] = useState<InsuranceProfile | null>(null);
-  const [profileLoading, setProfileLoading] = useState(false);
-  const [mocked, setMocked] = useState(false);
-  // 보험정보가 갱신되면 값이 올라가고, 챗봇이 이를 감지해 안내 메시지를 띄운다
-  const [profileRev, setProfileRev] = useState(0);
+  const goChat = useCallback(() => setScreen("chat"), []);
 
-  useEffect(() => {
-    api.health().then(setOnline);
-  }, []);
-
-  const loadProfile = useCallback(async (id: number | null) => {
-    if (id == null) {
-      setProfile(null);
-      return;
-    }
-    setProfileLoading(true);
-    try {
-      const { data, mocked } = await api.getInsuranceProfile(id);
-      setProfile(data);
-      setMocked(mocked);
-    } finally {
-      setProfileLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadProfile(userId);
-  }, [userId, loadProfile]);
-
-  function handleUpdated() {
-    loadProfile(userId);
-    setProfileRev((r) => r + 1);
+  function selectPersona(p: Persona) {
+    setPersona(p);
+    setUploaded(null);
+    setScreen("loading");
   }
 
+  function reset() {
+    setPersona(null);
+    setUploaded(null);
+    setScreen("persona");
+  }
+
+  function handleUploaded(name: string) {
+    setUploaded((prev) => ({ name, seq: (prev?.seq ?? 0) + 1 }));
+  }
+
+  // 1. 페르소나 선택
+  if (screen === "persona") return <PersonaSelect onSelect={selectPersona} />;
+
+  // 2. 보험 조회 로딩 (3초)
+  if (screen === "loading" && persona) return <LoadingScreen persona={persona} onDone={goChat} />;
+
+  // 3. 채팅 (두 페르소나 공용)
+  if (!persona) return null;
   return (
     <div className="layout">
-      {/* 좌측: 챗봇 + 보험정보 입력 */}
       <div className="left">
-        <ChatPanel userId={userId} profileRev={profileRev} />
-        <InsuranceInput userId={userId} onUpdated={handleUpdated} />
+        <div className="topbar">
+          <button className="topbar__back" onClick={reset}>
+            ← 사용자 변경
+          </button>
+          <div className="topbar__who">
+            <span className="topbar__emoji">{persona.emoji}</span>
+            {persona.name} <span className="topbar__age">{persona.age}세</span>
+          </div>
+        </div>
+        <ChatPanel userId={persona.id} uploaded={uploaded} />
       </div>
 
-      {/* 우측: 보장현황 / 사용자·문서 / API 콘솔 */}
       <div className="right">
-        <div className={`status status--${online ? "up" : online === false ? "down" : "unknown"}`}>
-          API {online == null ? "확인 중…" : online ? "온라인" : "오프라인"}
-        </div>
-
-        <div className="tabs">
-          <button className={tab === "coverage" ? "tab tab--on" : "tab"} onClick={() => setTab("coverage")}>
-            보장 현황
-          </button>
-          <button className={tab === "panel" ? "tab tab--on" : "tab"} onClick={() => setTab("panel")}>
-            사용자 · 문서
-          </button>
-          <button className={tab === "console" ? "tab tab--on" : "tab"} onClick={() => setTab("console")}>
-            API
-          </button>
-        </div>
-
-        {tab === "coverage" && <CoveragePanel profile={profile} loading={profileLoading} mocked={mocked} />}
-        {tab === "panel" && <SidePanel userId={userId} onSelectUser={setUserId} />}
-        {tab === "console" && <ApiConsole />}
+        <UploadPanel userId={persona.id} onUploaded={handleUploaded} />
       </div>
     </div>
   );

@@ -4,15 +4,15 @@ import type { ChatMessage } from "../lib/types";
 
 interface Props {
   userId: number | null;
-  /** 보험정보가 갱신될 때마다 증가. 변경 시 안내 메시지를 대화에 추가한다. */
-  profileRev?: number;
+  /** 증권이 업로드되면 분석 안내 메시지를 대화에 추가한다. */
+  uploaded?: { name: string; seq: number } | null;
 }
 
 function uid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
-export default function ChatPanel({ userId, profileRev = 0 }: Props) {
+export default function ChatPanel({ userId, uploaded = null }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -22,18 +22,32 @@ export default function ChatPanel({ userId, profileRev = 0 }: Props) {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  // 보험정보가 업데이트되면 대화 흐름에 반영 사실을 알린다
+  // 증권이 업로드되면 분석 중 → 완료 안내를 순차로 보여준다
   useEffect(() => {
-    if (profileRev === 0) return;
+    if (!uploaded) return;
+    const pendingId = uid();
     setMessages((m) => [
       ...m,
-      {
-        id: uid(),
-        role: "assistant",
-        content: "보험정보가 업데이트되었습니다. 변경된 내용을 기준으로 다시 질문해 주세요.",
-      },
+      { id: uid(), role: "user", content: `📄 ${uploaded.name}` },
+      { id: pendingId, role: "assistant", content: "", pending: true },
     ]);
-  }, [profileRev]);
+    const t = setTimeout(() => {
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.id === pendingId
+            ? {
+                ...msg,
+                pending: false,
+                content:
+                  `'${uploaded.name}' 분석을 마쳤습니다. 보장 항목과 특약 내용을 확인했어요.\n` +
+                  "이 증권에 대해 궁금한 점을 물어보세요.",
+              }
+            : msg,
+        ),
+      );
+    }, 1800);
+    return () => clearTimeout(t);
+  }, [uploaded]);
 
   async function send() {
     const q = input.trim();

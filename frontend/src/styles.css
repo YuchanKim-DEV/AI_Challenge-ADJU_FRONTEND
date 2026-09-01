@@ -250,3 +250,83 @@ body {
 @media (max-width: 820px) {
   .left { border-right: none; }
 }
+
+/* ================= 1. 페르소나 선택 ================= */
+.persona {
+  min-height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 40px 24px; gap: 40px;
+}
+.persona__head { text-align: center; }
+.persona__head .brand__logo { font-size: 34px; }
+.persona__head h1 { font-size: 20px; font-weight: 600; margin: 6px 0 10px; }
+.persona__head p { color: var(--muted); font-size: 14px; margin: 0; }
+
+.persona__list { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+.persona__card {
+  width: 290px; text-align: left; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+  padding: 24px; color: var(--text); font-family: inherit;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: border-color .15s, transform .15s;
+}
+.persona__card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.persona__emoji { font-size: 40px; }
+.persona__name { font-size: 18px; font-weight: 700; }
+.persona__name span { font-size: 13px; font-weight: 500; color: var(--muted); margin-left: 4px; }
+.persona__tag { color: var(--accent-2); font-size: 13px; font-weight: 600; }
+.persona__detail { color: var(--muted); font-size: 13px; line-height: 1.7; }
+.persona__go { margin-top: 8px; color: var(--accent); font-size: 13px; font-weight: 600; }
+
+/* ================= 2. 로딩 ================= */
+.loading {
+  min-height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 18px; padding: 40px;
+}
+.loading__emoji { font-size: 52px; }
+.loading__name { font-size: 17px; font-weight: 600; }
+.loading__spinner {
+  width: 34px; height: 34px; border-radius: 50%; margin: 6px 0;
+  border: 3px solid var(--border); border-top-color: var(--accent);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading__steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.loading__steps li { color: var(--muted); font-size: 14px; display: flex; gap: 10px; align-items: center; transition: color .3s; }
+.loading__steps li.now { color: var(--text); }
+.loading__steps li.done { color: var(--accent-2); }
+.loading__mark { width: 16px; text-align: center; }
+
+/* ================= 3. 채팅 상단바 ================= */
+.topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--panel);
+}
+.topbar__back {
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  border-radius: 8px; padding: 5px 11px; font-size: 12px; cursor: pointer;
+  min-height: 0; font-family: inherit;
+}
+.topbar__back:hover { color: var(--text); border-color: var(--muted); }
+.topbar__who { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+.topbar__emoji { font-size: 19px; }
+.topbar__age { color: var(--muted); font-size: 12px; font-weight: 500; }
+
+/* ================= 업로드 패널 ================= */
+.upload { padding: 22px 18px; }
+.upload h2 { font-size: 15px; margin: 0 0 10px; }
+.upload__drop {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  border: 1.5px dashed var(--border); border-radius: 12px;
+  padding: 26px 16px; margin: 14px 0; cursor: pointer;
+  background: var(--panel-2); transition: border-color .15s;
+}
+.upload__drop:hover { border-color: var(--accent); }
+.upload__drop input { display: none; }
+.upload__icon { font-size: 30px; }
+.upload__label { font-size: 13px; word-break: break-all; text-align: center; }
+.upload__size { font-size: 11px; color: var(--muted); }
+.upload button {
+  width: 100%; border: none; border-radius: 10px; min-height: 42px;
+  background: var(--accent); color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;
+}
+.upload button:disabled { opacity: .45; cursor: default; }
