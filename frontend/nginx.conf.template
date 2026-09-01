@@ -1,41 +1,19 @@
+# 공통 라우팅은 include로 재사용 (80 / 443 동일)
 server {
     listen 80;
     server_name _;
+    include /etc/nginx/adju-common.conf;
+}
 
-    root /usr/share/nginx/html;
-    index index.html;
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name _;
 
-    # gzip
-    gzip on;
-    gzip_types text/css application/javascript application/json image/svg+xml;
-    gzip_min_length 1024;
+    ssl_certificate     /etc/nginx/certs/self.crt;
+    ssl_certificate_key /etc/nginx/certs/self.key;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
 
-    # 정적 에셋은 해시 파일명이라 장기 캐시
-    location /assets/ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    # SPA 라우팅 폴백
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # /api/* → FastAPI (프리픽스 제거해서 전달)
-    location /api/ {
-        proxy_pass ${API_UPSTREAM}/;
-        proxy_http_version 1.1;
-        proxy_set_header Host              $host;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
-        # 보험증권 업로드 (기본 1M 이면 부족)
-        client_max_body_size 50m;
-
-        # LLM 응답이 느릴 수 있어 넉넉히
-        proxy_read_timeout 300s;
-        proxy_send_timeout 300s;
-        proxy_buffering off;          # 추후 SSE 스트리밍 대비
-    }
+    include /etc/nginx/adju-common.conf;
 }

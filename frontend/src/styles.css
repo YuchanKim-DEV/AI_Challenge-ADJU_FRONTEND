@@ -182,3 +182,71 @@ body {
   border: 1px solid var(--border); font-size: 12px; line-height: 1.5;
   max-height: 320px; overflow: auto; white-space: pre-wrap; word-break: break-word;
 }
+
+/* ---------- 좌측 컬럼 (챗봇 + 보험정보 입력) ---------- */
+.left { display: flex; flex-direction: column; min-width: 0; border-right: 1px solid var(--border); }
+.left .chat { flex: 1; border-right: none; min-height: 0; }
+
+/* ---------- 보험정보 입력 ---------- */
+.insin { border-top: 1px solid var(--border); background: var(--panel); }
+.insin__toggle {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  background: transparent; border: none; color: var(--text); cursor: pointer;
+  padding: 12px 18px; font-size: 13px; font-weight: 600; border-radius: 0; min-height: 0;
+}
+.insin__chev { color: var(--muted); }
+.insin__body { padding: 0 18px 16px; }
+.insin__body textarea {
+  width: 100%; margin: 8px 0; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
+  font-family: inherit; font-size: 14px; line-height: 1.6; resize: vertical;
+}
+.insin__body button {
+  width: 100%; border: none; border-radius: 10px; min-height: 40px;
+  background: var(--accent); color: #fff; font-weight: 600; cursor: pointer;
+}
+.insin__body button:disabled { opacity: 0.5; cursor: default; }
+
+/* ---------- 보장 현황 ---------- */
+.mock-note { background: #2a2415; border: 1px solid #4a3a15; color: #ffd479; border-radius: 8px; padding: 8px 10px; margin: 0 0 12px; }
+
+.stat { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+.stat > div { display: flex; flex-direction: column; gap: 2px; }
+.stat span { font-size: 11px; color: var(--muted); }
+.stat b { font-size: 15px; }
+.stat b.warn { color: #ffd479; }
+
+.cov { border-bottom: 1px solid var(--border); padding: 9px 0; }
+.cov:last-of-type { border-bottom: none; }
+.cov__head { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.cov__mark { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; flex-shrink: 0; }
+.cov--on .cov__mark { background: #1e4a35; color: var(--accent-2); }
+.cov--off .cov__mark { background: #4a1e1e; color: #ff9b9b; }
+.cov__name { font-weight: 600; }
+.cov__amt { margin-left: auto; font-variant-numeric: tabular-nums; }
+.cov--on .cov__amt { color: var(--accent-2); }
+.cov--off .cov__amt { color: var(--danger); font-size: 12px; }
+.cov__from { margin: 4px 0 0 26px; font-size: 11px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.cov__dup { background: #4a3a15; color: #ffd479; border-radius: 4px; padding: 1px 5px; font-size: 10px; }
+
+/* ---------- 보유 증권 ---------- */
+.pol { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; background: var(--bg); }
+.pol summary { cursor: pointer; display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.pol__co { color: var(--accent); font-weight: 600; }
+.pol__nm { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pol__fee { margin-left: auto; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.pol__meta { font-size: 11px; color: var(--muted); margin: 8px 0; line-height: 1.6; }
+
+.rider { border-left: 2px solid var(--border); padding: 6px 0 6px 10px; margin-bottom: 6px; }
+.rider--exp { border-left-color: var(--danger); opacity: 0.75; }
+.rider__head { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.rider__amt { margin-left: auto; color: var(--accent-2); font-variant-numeric: tabular-nums; }
+.rider--exp .rider__amt { color: var(--muted); text-decoration: line-through; }
+.badge--exp { background: #4a1e1e; color: #ff9b9b; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700; margin-left: 0; }
+.rider__cond { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+.rider__term { font-size: 11px; color: var(--muted); margin-top: 3px; opacity: 0.8; }
+.rider__src { font-style: italic; }
+
+@media (max-width: 820px) {
+  .left { border-right: none; }
+}

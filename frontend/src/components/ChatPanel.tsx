@@ -4,13 +4,15 @@ import type { ChatMessage } from "../lib/types";
 
 interface Props {
   userId: number | null;
+  /** 보험정보가 갱신될 때마다 증가. 변경 시 안내 메시지를 대화에 추가한다. */
+  profileRev?: number;
 }
 
 function uid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
-export default function ChatPanel({ userId }: Props) {
+export default function ChatPanel({ userId, profileRev = 0 }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -19,6 +21,19 @@ export default function ChatPanel({ userId }: Props) {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  // 보험정보가 업데이트되면 대화 흐름에 반영 사실을 알린다
+  useEffect(() => {
+    if (profileRev === 0) return;
+    setMessages((m) => [
+      ...m,
+      {
+        id: uid(),
+        role: "assistant",
+        content: "보험정보가 업데이트되었습니다. 변경된 내용을 기준으로 다시 질문해 주세요.",
+      },
+    ]);
+  }, [profileRev]);
 
   async function send() {
     const q = input.trim();
