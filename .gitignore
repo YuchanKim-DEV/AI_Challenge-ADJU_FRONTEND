@@ -17,3 +17,9 @@ docs/servers.md
 
 # build info
 *.tsbuildinfo
+
+# 인프라 문서 (접속정보·방화벽 정책 — 커밋 금지)
+*.xlsx
+*.xls
+접속정보*
+방화벽*
