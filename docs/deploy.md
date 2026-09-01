@@ -72,6 +72,26 @@ ssh was 'curl -s -o /dev/null -w "화면 %{http_code}\n" http://localhost/;
          curl -s -o /dev/null -w "api  %{http_code}\n" http://localhost/api/health'
 ```
 
+## ⚠️ 라우팅 설정 (재부팅 시 반드시 재적용)
+
+WAS1은 NIC가 2개이고 **공인 IP가 eth1(10.200.40.77)에 매핑**되어 있다.
+도커 컨테이너 응답이 eth0으로 나가면 외부에서 접속이 안 되므로 아래 설정이 필요하다.
+자세한 원인은 `docs/troubleshooting.md` 1번 항목 참고.
+
+```bash
+sudo iptables -t mangle -A PREROUTING -i eth1 -m conntrack --ctstate NEW -j CONNMARK --set-mark 2
+sudo iptables -t mangle -A PREROUTING -j CONNMARK --restore-mark
+sudo ip rule add fwmark 2 lookup 2 priority 100
+sudo ip route add 172.17.0.0/16 dev docker0 table 2   # ★ 빠뜨리면 접속 불가
+```
+
+확인:
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://180.210.89.242/    # 200
+```
+
+> **현재 메모리에만 적용된 상태다.** 재부팅하면 사라지므로 영구화 필요.
+
 ## 운영 명령어
 
 ```bash
