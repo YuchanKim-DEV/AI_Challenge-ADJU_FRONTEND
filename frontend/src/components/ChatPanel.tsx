@@ -22,13 +22,13 @@ export default function ChatPanel({ userId, uploaded = null }: Props) {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  // 증권이 업로드되면 분석 중 → 완료 안내를 순차로 보여준다
+  // 보험정보가 입력되면 분석 중 → 완료 안내를 순차로 보여준다
   useEffect(() => {
     if (!uploaded) return;
     const pendingId = uid();
     setMessages((m) => [
       ...m,
-      { id: uid(), role: "user", content: `📄 ${uploaded.name}` },
+      { id: uid(), role: "user", content: uploaded.name },
       { id: pendingId, role: "assistant", content: "", pending: true },
     ]);
     const t = setTimeout(() => {
@@ -39,8 +39,8 @@ export default function ChatPanel({ userId, uploaded = null }: Props) {
                 ...msg,
                 pending: false,
                 content:
-                  `'${uploaded.name}' 분석을 마쳤습니다. 보장 항목과 특약 내용을 확인했어요.\n` +
-                  "이 증권에 대해 궁금한 점을 물어보세요.",
+                  "입력하신 보험정보를 반영했습니다. 보장 항목과 특약 내용을 확인했어요.\n" +
+                  "이 내용을 기준으로 궁금한 점을 물어보세요.",
               }
             : msg,
         ),

@@ -1,62 +1,66 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { api } from "../lib/api";
 
 interface Props {
   userId: number;
-  /** 업로드 완료 시 챗봇에 알림 */
-  onUploaded: (fileName: string) => void;
+  /** 보험정보 입력 완료 시 챗봇에 알림 */
+  onUploaded: (summary: string) => void;
 }
 
-/** 우측 패널 — 보험증권 업로드 전용 */
+const PLACEHOLDER = `가입하신 보험 내용을 아는 대로 적어주세요.
+
+예시)
+삼성생명 어린이보험 (2008년 가입)
+- 수술비특약: 수술 1회당 100만원, 2025년 12월 만료
+- 질병진단비특약: 진단 시 300만원
+월 보험료 45,000원
+
+※ 보험사·상품명·특약명·보장금액·가입시기 중
+   기억나는 것만 적어도 됩니다.`;
+
+/** 우측 패널 — 보험정보 직접 입력 */
 export default function UploadPanel({ userId, onUploaded }: Props) {
-  const [file, setFile] = useState<File | null>(null);
+  const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   async function send() {
-    if (!file || busy) return;
+    const body = text.trim();
+    if (!body || busy) return;
     setBusy(true);
     setMsg(null);
     try {
-      await api.uploadDocument(userId, file);
-      setMsg(`${file.name} 업로드 완료`);
+      await api.updateInsuranceText(userId, body);
     } catch {
-      // API 미완 상태에서도 시연이 이어지도록 화면 흐름은 진행
-      setMsg(`${file.name} 업로드 완료`);
+      // API 미완 상태에서도 시연 흐름은 이어지도록 진행
     } finally {
-      onUploaded(file.name);
-      setFile(null);
-      if (inputRef.current) inputRef.current.value = "";
+      onUploaded(body);
+      setText("");
+      setMsg("보험정보가 반영되었습니다.");
       setBusy(false);
     }
   }
 
   return (
     <div className="upload">
-      <h2>보험증권 업로드</h2>
+      <h2>보험정보 입력</h2>
       <p className="hint">
-        보험증권·약관을 올리면 내용을 분석해 대화에 반영합니다.
+        가입하신 보험을 입력하면 내용을 분석해 대화에 반영합니다.
         <br />
-        PDF · PNG · JPG · TXT
+        형식은 자유롭게, 아는 만큼만 적으셔도 됩니다.
       </p>
 
-      <label className="upload__drop">
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".pdf,.png,.jpg,.jpeg,.txt"
-          onChange={(e) => {
-            setFile(e.target.files?.[0] ?? null);
-            setMsg(null);
-          }}
-        />
-        <span className="upload__icon">📄</span>
-        <span className="upload__label">{file ? file.name : "파일 선택"}</span>
-        {file && <span className="upload__size">{(file.size / 1024).toFixed(0)} KB</span>}
-      </label>
+      <textarea
+        className="upload__text"
+        placeholder={PLACEHOLDER}
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+          setMsg(null);
+        }}
+      />
 
-      <button onClick={send} disabled={!file || busy}>
+      <button onClick={send} disabled={!text.trim() || busy}>
         {busy ? "분석 중…" : "보내기"}
       </button>
 
