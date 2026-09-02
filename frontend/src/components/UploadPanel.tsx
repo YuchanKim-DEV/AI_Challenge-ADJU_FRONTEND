@@ -31,14 +31,15 @@ export default function UploadPanel({ userId, onUploaded }: Props) {
     setMsg(null);
     try {
       await api.updateInsuranceText(userId, body);
-    } catch {
-      // API 미완 상태에서도 시연 흐름은 이어지도록 진행
-    } finally {
-      onUploaded(body);
-      setText("");
       setMsg("보험정보가 반영되었습니다.");
+    } catch (e) {
+      setMsg(`반영 실패: ${(e as Error).message}`);
       setBusy(false);
+      return;
     }
+    onUploaded(body);
+    setText("");
+    setBusy(false);
   }
 
   return (

@@ -4,7 +4,6 @@ import type {
   UserCreate,
   UserRead,
 } from "./types";
-import { MOCK_PROFILES, type InsuranceProfile } from "./insurance";
 
 export const API_BASE = (import.meta.env.VITE_API_BASE as string) || "/api";
 const BASE = API_BASE;
@@ -78,34 +77,14 @@ export const api = {
   },
 
   /**
-   * 가입 보험정보 조회.
-   * 엔드포인트가 아직 미배포라 실패 시 목업으로 폴백한다 (시연 가능하도록).
-   * 배포되면 fallback 분기만 제거하면 됨.
+   * 보험정보 텍스트 반영.
+   * AI 서버가 파일 기반으로 저장하므로, 입력한 텍스트를 .txt로 만들어
+   * 기존 문서 업로드 API로 보낸다. (별도 엔드포인트 불필요)
    */
-  async getInsuranceProfile(userId: number): Promise<{ data: InsuranceProfile; mocked: boolean }> {
-    try {
-      const res = await fetch(`${BASE}/users/${userId}/insurance`);
-      if (res.ok) return { data: (await res.json()) as InsuranceProfile, mocked: false };
-    } catch {
-      /* 네트워크 실패 시에도 폴백 */
-    }
-    const mock = MOCK_PROFILES[userId] ?? MOCK_PROFILES[1];
-    return { data: structuredClone(mock), mocked: true };
-  },
-
-  /** 보험정보 텍스트 추가 (좌측 입력 영역 → 업데이트 버튼) */
-  async updateInsuranceText(userId: number, text: string): Promise<{ ok: boolean; mocked: boolean }> {
-    try {
-      const res = await fetch(`${BASE}/users/${userId}/insurance/text`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      if (res.ok) return { ok: true, mocked: false };
-    } catch {
-      /* 폴백 */
-    }
-    return { ok: true, mocked: true };
+  async updateInsuranceText(userId: number, text: string, label = "보험정보"): Promise<DocumentUploadResponse> {
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "");
+    const file = new File([text], `${label}_${stamp}.txt`, { type: "text/plain" });
+    return this.uploadDocument(userId, file);
   },
 
   async chat(userId: number, question: string): Promise<ChatResponse> {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import type { Persona } from "./PersonaSelect";
 
 const STEPS = ["가입 보험 조회 중…", "보장 내용 분석 중…", "대화 준비 중…"];
@@ -13,6 +14,10 @@ export default function LoadingScreen({ persona, onDone }: Props) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
+    // 기존 가입 보험 내역을 서버에 등록해 챗봇이 참고할 수 있게 한다.
+    // 실패해도 화면 흐름은 그대로 진행 (시연 중단 방지)
+    api.updateInsuranceText(persona.id, persona.baseline, `${persona.name}_가입보험`).catch(() => {});
+
     const t1 = setTimeout(() => setStep(1), 1000);
     const t2 = setTimeout(() => setStep(2), 2000);
     const t3 = setTimeout(onDone, 3000);
@@ -21,7 +26,7 @@ export default function LoadingScreen({ persona, onDone }: Props) {
       clearTimeout(t2);
       clearTimeout(t3);
     };
-  }, [onDone]);
+  }, [onDone, persona]);
 
   return (
     <div className="loading">
