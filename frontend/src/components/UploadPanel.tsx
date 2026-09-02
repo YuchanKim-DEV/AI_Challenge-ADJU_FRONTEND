@@ -7,6 +7,14 @@ interface Props {
   onUploaded: (summary: string) => void;
 }
 
+interface HistoryItem {
+  id: number;
+  time: string;
+  text: string;
+}
+
+let seq = 0;
+
 const PLACEHOLDER = `가입하신 보험 내용을 아는 대로 적어주세요.
 
 예시)
@@ -23,6 +31,8 @@ export default function UploadPanel({ userId, onUploaded }: Props) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  // 이 페이지를 유지하는 동안만 남는 전송 이력 (새로고침하면 초기화)
+  const [history, setHistory] = useState<HistoryItem[]>([]);
 
   async function send() {
     const body = text.trim();
@@ -37,6 +47,10 @@ export default function UploadPanel({ userId, onUploaded }: Props) {
       setBusy(false);
       return;
     }
+    setHistory((h) => [
+      { id: ++seq, time: new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" }), text: body },
+      ...h,
+    ]);
     onUploaded(body);
     setText("");
     setBusy(false);
@@ -66,6 +80,27 @@ export default function UploadPanel({ userId, onUploaded }: Props) {
       </button>
 
       {msg && <p className="upload-msg">{msg}</p>}
+
+      {history.length > 0 && (
+        <div className="hist">
+          <div className="hist__head">
+            <span>보낸 내역 {history.length}건</span>
+            <button className="hist__clear" onClick={() => setHistory([])}>
+              지우기
+            </button>
+          </div>
+          {history.map((h) => (
+            <details key={h.id} className="hist__item">
+              <summary>
+                <span className="hist__time">{h.time}</span>
+                <span className="hist__preview">{h.text.split("\n")[0]}</span>
+              </summary>
+              <pre>{h.text}</pre>
+            </details>
+          ))}
+          <p className="hist__note">※ 새로고침하면 이 목록은 사라집니다.</p>
+        </div>
+      )}
     </div>
   );
 }

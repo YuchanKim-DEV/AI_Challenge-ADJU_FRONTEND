@@ -17,6 +17,8 @@ export default function ChatPanel({ userId, uploaded = null }: Props) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // isComposing을 지원하지 않는 브라우저 대비 이중 방어
+  const composingRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -90,6 +92,9 @@ export default function ChatPanel({ userId, uploaded = null }: Props) {
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    // 한글 등 IME 조합 중에는 Enter를 전송으로 처리하지 않는다.
+    // (조합 중 전송하면 입력창을 비운 뒤 조합이 확정되어 마지막 글자가 되돌아옴)
+    if (e.nativeEvent.isComposing || composingRef.current) return;
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       send();
@@ -146,7 +151,9 @@ export default function ChatPanel({ userId, uploaded = null }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder={userId ? "질문을 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)" : "우측에서 사용자를 먼저 선택하세요"}
+          onCompositionStart={() => { composingRef.current = true; }}
+          onCompositionEnd={() => { composingRef.current = false; }}
+          placeholder="질문을 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)"
           rows={2}
         />
         <button onClick={send} disabled={busy || !input.trim()}>
