@@ -81,8 +81,7 @@ export default function PersonaSelect({ onSelect }: Props) {
   return (
     <div className="persona">
       <div className="persona__head">
-        <div className="brand__logo">ADJU</div>
-        <h1>AI 금융 부관</h1>
+        <img className="persona__logo" src="/logo.png" alt="ADJU Care — 당신의 AI 보험 부관" />
         <p>가입한 보험을 대화로 확인하세요. 체험할 사용자를 선택해 주세요.</p>
       </div>
 

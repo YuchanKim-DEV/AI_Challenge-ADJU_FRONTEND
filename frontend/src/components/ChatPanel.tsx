@@ -104,10 +104,7 @@ export default function ChatPanel({ userId, uploaded = null }: Props) {
   return (
     <section className="chat">
       <header className="chat__header">
-        <div className="brand">
-          <span className="brand__logo">ADJU</span>
-          <span className="brand__tag">AI 금융 부관</span>
-        </div>
+        <img className="chat__logo" src="/logo.png" alt="ADJU Care" />
         <p className="chat__sub">가입한 보험의 보장 내용을 물어보세요.</p>
       </header>
 

@@ -365,3 +365,14 @@ body {
   max-height: 220px; overflow: auto;
 }
 .hist__note { color: var(--muted); font-size: 11px; margin: 8px 0 0; opacity: .8; }
+
+/* ---------- 로고 ---------- */
+/* 원본 글자색이 남색이라 다크 배경에서 묻힌다.
+   밝기·대비를 올려 브랜드 색(파랑~민트)은 유지하면서 가독성 확보 */
+.persona__logo, .chat__logo, .loading__logo {
+  display: block;
+  filter: brightness(2.1) contrast(0.92) saturate(1.15);
+}
+.persona__logo { width: 340px; max-width: 78vw; margin: 0 auto 6px; }
+.loading__logo { width: 190px; max-width: 60vw; margin: 0 auto 10px; opacity: .9; }
+.chat__logo { height: 34px; width: auto; }

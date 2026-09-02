@@ -30,6 +30,7 @@ export default function LoadingScreen({ persona, onDone }: Props) {
 
   return (
     <div className="loading">
+      <img className="loading__logo" src="/logo.png" alt="ADJU Care" />
       <div className="loading__emoji">{persona.emoji}</div>
       <div className="loading__name">{persona.name}님의 보험을 찾고 있습니다</div>
 
