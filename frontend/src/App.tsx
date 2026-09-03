@@ -54,7 +54,7 @@ export default function App() {
       </div>
 
       <div className="right">
-        <UploadPanel userId={persona.id} onUploaded={handleUploaded} />
+        <UploadPanel persona={persona} onUploaded={handleUploaded} />
       </div>
     </div>
   );

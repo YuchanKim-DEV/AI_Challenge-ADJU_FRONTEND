@@ -376,3 +376,20 @@ body {
 .persona__logo { width: 340px; max-width: 78vw; margin: 0 auto 6px; }
 .loading__logo { width: 190px; max-width: 60vw; margin: 0 auto 10px; opacity: .9; }
 .chat__logo { height: 34px; width: auto; }
+
+/* 시연용 프리셋 버튼 */
+.preset { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 4px; }
+.upload .preset__btn {
+  width: auto; min-height: 0; flex: 1 1 auto;
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+  border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 500;
+  cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+.upload .preset__btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* 날짜 누락 경고 */
+.warn-msg {
+  background: #2a2415; border: 1px solid #4a3a15; color: #ffd479;
+  border-radius: 8px; padding: 8px 10px; margin: 0 0 10px;
+  font-size: 12px; line-height: 1.6;
+}
