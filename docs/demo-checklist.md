@@ -6,26 +6,34 @@
 
 ## 1. 데이터 초기화 (필수)
 
+프로젝트 폴더에서 한 줄이면 된다. 보험 데이터 복원 + 대화 이력 삭제 + 결과 확인까지 한 번에 처리한다.
+
 ```bash
-ssh was2
-C=$(docker ps -q | head -1)
-docker exec $C python3 -c "
-import json
-p='/app/src/adju_care_agent/api/mock_data/insurance_summary.json'
-b='/app/src/adju_care_agent/api/mock_data/insurance_summary_backup.json'
-cur=json.load(open(p)); bak=json.load(open(b))
-for k in ['1','2']: cur[k]=bak[k]
-json.dump(cur, open(p,'w'), ensure_ascii=False, indent=2)
-print('복원 완료')
-"
+cd ~/Desktop/ADJU
+./scripts/reset-demo.sh
 ```
 
-대화 이력도 함께 초기화(페르소나 선택 시 자동 호출되지만 수동으로도 가능):
-```bash
-ssh was 'for u in 1 2; do curl -s -X DELETE http://10.20.10.240:18000/users/$u/chat -o /dev/null; done'
+출력 예:
+```
+· 보험 데이터 복원 중…
+· 대화 이력 삭제 중…
+· 확인
+    홍길동 증권 1 건 / 변경이력 0 건 | 입원/수술 미보장
+    김순자 증권 5 건 / 변경이력 0 건 | 입원/수술 보장, 간병 미보장
 ```
 
-> 지섭님이 **페르소나 선택 시 자동 초기화**를 적용하면 이 절차는 불필요해진다.
+> 서버에 리셋 API가 추가되면(페르소나 선택 시 자동 초기화) 이 절차는 불필요해진다.
+
+### 참고 — 지금 있는 DELETE API로는 초기화되지 않음
+
+| API | 지우는 대상 | 시나리오 복구 |
+| --- | --- | --- |
+| `DELETE /users/{id}/chat` | 대화 이력 | X |
+| `DELETE /users/{id}/documents/embeddings` | 문서 임베딩 | X |
+| (없음) | **보험 요약**(policies·coverage_ontology·change_log) | 필요한 것 |
+
+실측: 보험 추가 후 DELETE 2개를 모두 호출(204)해도
+`증권 2건, 변경이력 1건, 입원/수술 3,000,000` 그대로 유지됨.
 
 ## 2. 초기 상태 확인
 
