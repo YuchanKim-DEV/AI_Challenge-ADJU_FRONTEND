@@ -40,8 +40,8 @@ export default function UploadPanel({ userId, onUploaded }: Props) {
     setBusy(true);
     setMsg(null);
     try {
-      await api.updateInsuranceText(userId, body);
-      setMsg("보험정보가 반영되었습니다.");
+      const res = await api.updateInsuranceText(userId, body);
+      setMsg(res?.message || "보험정보가 반영되었습니다.");
     } catch (e) {
       setMsg(`반영 실패: ${(e as Error).message}`);
       setBusy(false);

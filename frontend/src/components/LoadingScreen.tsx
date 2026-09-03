@@ -14,9 +14,9 @@ export default function LoadingScreen({ persona, onDone }: Props) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    // 기존 가입 보험 내역을 서버에 등록해 챗봇이 참고할 수 있게 한다.
+    // 기본 보험 데이터는 서버에 등록되어 있으므로 조회만 한다(로딩 연출 겸 워밍업).
     // 실패해도 화면 흐름은 그대로 진행 (시연 중단 방지)
-    api.updateInsuranceText(persona.id, persona.baseline, `${persona.name}_가입보험`).catch(() => {});
+    api.getInsuranceSummary(persona.id).catch(() => {});
 
     const t1 = setTimeout(() => setStep(1), 1000);
     const t2 = setTimeout(() => setStep(2), 2000);

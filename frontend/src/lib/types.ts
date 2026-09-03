@@ -37,9 +37,15 @@ export interface Source {
   score: number;
 }
 
+export interface ChatTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export interface ChatResponse {
   answer: string;
   sources?: Source[];   // 서버 스키마상 optional
+  history?: ChatTurn[];
 }
 
 // 프론트 내부 채팅 메시지 모델

@@ -1,5 +1,6 @@
 import type {
   ChatResponse,
+  ChatTurn,
   DocumentUploadResponse,
   UserCreate,
   UserRead,
@@ -76,24 +77,35 @@ export const api = {
     );
   },
 
-  /**
-   * 보험정보 텍스트 반영.
-   * AI 서버가 파일 기반으로 저장하므로, 입력한 텍스트를 .txt로 만들어
-   * 기존 문서 업로드 API로 보낸다. (별도 엔드포인트 불필요)
-   */
-  async updateInsuranceText(userId: number, text: string, label = "보험정보"): Promise<DocumentUploadResponse> {
-    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "");
-    const file = new File([text], `${label}_${stamp}.txt`, { type: "text/plain" });
-    return this.uploadDocument(userId, file);
+  /** 보험정보 텍스트 반영 (전용 엔드포인트) */
+  async updateInsuranceText(userId: number, text: string): Promise<{ message?: string }> {
+    return handle<{ message?: string }>(
+      await fetch(`${BASE}/users/${userId}/insurance-summary/update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      }),
+    );
   },
 
-  async chat(userId: number, question: string): Promise<ChatResponse> {
+  /** 이전 대화(history)를 함께 보내 맥락을 유지한다. */
+  async chat(userId: number, question: string, history: ChatTurn[] = []): Promise<ChatResponse> {
     return handle<ChatResponse>(
       await fetch(`${BASE}/users/${userId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, history }),
       }),
     );
+  },
+
+  /** 가입 보험 요약 조회 */
+  async getInsuranceSummary(userId: number): Promise<unknown> {
+    return handle<unknown>(await fetch(`${BASE}/users/${userId}/insurance-summary`));
+  },
+
+  /** 대화 이력 초기화 */
+  async resetChat(userId: number): Promise<void> {
+    await fetch(`${BASE}/users/${userId}/chat`, { method: "DELETE" });
   },
 };
