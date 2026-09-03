@@ -8,6 +8,16 @@ import type {
 export const API_BASE = (import.meta.env.VITE_API_BASE as string) || "/api";
 const BASE = API_BASE;
 
+/** 상태 코드를 함께 담는 에러 (호출부에서 422 등을 구분하기 위함) */
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let detail = res.statusText;
@@ -17,7 +27,7 @@ async function handle<T>(res: Response): Promise<T> {
     } catch {
       /* ignore */
     }
-    throw new Error(`${res.status} ${detail}`);
+    throw new ApiError(res.status, `${res.status} ${detail}`);
   }
   return res.json() as Promise<T>;
 }

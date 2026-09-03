@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { api } from "../lib/api";
+import { api, ApiError } from "../lib/api";
 import type { Persona } from "./PersonaSelect";
 
 interface Props {
@@ -47,6 +47,8 @@ export default function UploadPanel({ persona, onUploaded }: Props) {
   const [err, setErr] = useState<string | null>(null);
   // 날짜 없이 보내겠다고 한 번 더 확인했는지
   const [dateConfirmed, setDateConfirmed] = useState(false);
+  // 보험과 무관한 내용이 입력됐을 때 띄우는 안내 팝업
+  const [popup, setPopup] = useState<string | null>(null);
   // 이 페이지를 유지하는 동안만 남는 전송 이력 (새로고침하면 초기화)
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
@@ -81,7 +83,12 @@ export default function UploadPanel({ persona, onUploaded }: Props) {
       const res = await api.updateInsuranceText(persona.id, body);
       setMsg(res?.message || "보험정보가 반영되었습니다.");
     } catch (e) {
-      setErr(`반영 실패: ${(e as Error).message}`);
+      // 422: 서버가 보험정보로 해석하지 못한 경우
+      if (e instanceof ApiError && e.status === 422) {
+        setPopup("가입하신 보험과 관련된 내용을 입력해 주세요.\n보험사·상품명·특약명·보장금액·계약일을 함께 적어주시면 정확하게 반영됩니다.");
+      } else {
+        setErr(`반영 실패: ${(e as Error).message}`);
+      }
       setBusy(false);
       return;
     }
@@ -133,6 +140,18 @@ export default function UploadPanel({ persona, onUploaded }: Props) {
 
       {err && <p className="err">{err}</p>}
       {msg && <p className="upload-msg">{msg}</p>}
+
+      {popup && (
+        <div className="modal" onClick={() => setPopup(null)}>
+          <div className="modal__box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal__icon">!</div>
+            <p className="modal__text">{popup}</p>
+            <button className="modal__ok" onClick={() => setPopup(null)}>
+              확인
+            </button>
+          </div>
+        </div>
+      )}
 
       {history.length > 0 && (
         <div className="hist">
