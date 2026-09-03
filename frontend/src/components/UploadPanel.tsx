@@ -45,8 +45,6 @@ export default function UploadPanel({ persona, onUploaded }: Props) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  // 날짜 없이 보내겠다고 한 번 더 확인했는지
-  const [dateConfirmed, setDateConfirmed] = useState(false);
   // 보험과 무관한 내용이 입력됐을 때 띄우는 안내 팝업
   const [popup, setPopup] = useState<string | null>(null);
   // 이 페이지를 유지하는 동안만 남는 전송 이력 (새로고침하면 초기화)
@@ -58,7 +56,6 @@ export default function UploadPanel({ persona, onUploaded }: Props) {
     setText(v);
     setMsg(null);
     setErr(null);
-    setDateConfirmed(false);
   }
 
   function applyPreset(preset: string) {
@@ -67,14 +64,9 @@ export default function UploadPanel({ persona, onUploaded }: Props) {
 
   async function send() {
     const body = text.trim();
-    if (!body || busy) return;
-
-    // 날짜가 없으면 한 번 경고하고, 다시 누르면 그대로 전송
-    if (dateMissing && !dateConfirmed) {
-      setDateConfirmed(true);
-      setErr("계약일이 없습니다. 날짜를 추가하시거나, 그대로 보내려면 한 번 더 누르세요.");
-      return;
-    }
+    // 계약일이 없으면 서버가 날짜를 빈 값으로 저장해 조회가 영구적으로 실패하므로
+    // 아예 전송하지 않는다.
+    if (!body || busy || dateMissing) return;
 
     setBusy(true);
     setMsg(null);
@@ -102,7 +94,6 @@ export default function UploadPanel({ persona, onUploaded }: Props) {
     ]);
     onUploaded(body);
     setText("");
-    setDateConfirmed(false);
     setBusy(false);
   }
 
@@ -130,12 +121,16 @@ export default function UploadPanel({ persona, onUploaded }: Props) {
         onChange={(e) => update(e.target.value)}
       />
 
-      {dateMissing && !err && (
-        <p className="warn-msg">계약일(예: {new Date().toISOString().slice(0, 10)})을 함께 적어주세요.</p>
+      {dateMissing && (
+        <p className="warn-msg">
+          계약일을 함께 적어주세요. 날짜가 없으면 보험정보를 반영할 수 없습니다.
+          <br />
+          예) 계약일 {new Date().toISOString().slice(0, 10)}
+        </p>
       )}
 
-      <button onClick={send} disabled={!text.trim() || busy}>
-        {busy ? "분석 중…" : dateMissing && dateConfirmed ? "날짜 없이 보내기" : "보내기"}
+      <button onClick={send} disabled={!text.trim() || busy || dateMissing}>
+        {busy ? "분석 중…" : "보내기"}
       </button>
 
       {err && <p className="err">{err}</p>}
