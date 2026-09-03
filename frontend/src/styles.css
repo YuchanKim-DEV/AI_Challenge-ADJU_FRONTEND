@@ -390,9 +390,11 @@ body {
 /* 날짜 누락 경고 */
 .warn-msg {
   background: #2a2415; border: 1px solid #4a3a15; color: #ffd479;
-  border-radius: 8px; padding: 8px 10px; margin: 0 0 10px;
-  font-size: 12px; line-height: 1.6;
+  border-radius: 8px; padding: 11px 13px; margin: 10px 0 12px;
+  font-size: 13.5px; line-height: 1.65;
 }
+/* 입력 패널 내 오류 문구도 동일한 간격·크기로 */
+.upload .err { font-size: 13.5px; line-height: 1.65; margin: 10px 0 12px; }
 
 /* 안내 팝업 */
 .modal {
