@@ -14,9 +14,15 @@ export default function LoadingScreen({ persona, onDone }: Props) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    // 기본 보험 데이터는 서버에 등록되어 있으므로 조회만 한다(로딩 연출 겸 워밍업).
+    // 서버가 대화 이력을 보관하므로, 새로 시작할 때 초기화한다.
+    // (초기화하지 않으면 새로고침해도 이전 대화가 이어져 시연이 꼬임)
     // 실패해도 화면 흐름은 그대로 진행 (시연 중단 방지)
-    api.getInsuranceSummary(persona.id).catch(() => {});
+    api
+      .resetChat(persona.id)
+      .catch(() => {})
+      .finally(() => {
+        api.getInsuranceSummary(persona.id).catch(() => {});
+      });
 
     const t1 = setTimeout(() => setStep(1), 1000);
     const t2 = setTimeout(() => setStep(2), 2000);

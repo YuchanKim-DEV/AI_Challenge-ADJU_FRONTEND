@@ -1,6 +1,5 @@
 import type {
   ChatResponse,
-  ChatTurn,
   DocumentUploadResponse,
   UserCreate,
   UserRead,
@@ -88,13 +87,16 @@ export const api = {
     );
   },
 
-  /** 이전 대화(history)를 함께 보내 맥락을 유지한다. */
-  async chat(userId: number, question: string, history: ChatTurn[] = []): Promise<ChatResponse> {
+  /**
+   * 대화 이력은 서버(ConversationLog)가 자체 관리하므로 질문만 보낸다.
+   * 응답의 history 필드로 서버가 보관 중인 대화를 확인할 수 있다.
+   */
+  async chat(userId: number, question: string): Promise<ChatResponse> {
     return handle<ChatResponse>(
       await fetch(`${BASE}/users/${userId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, history }),
+        body: JSON.stringify({ question }),
       }),
     );
   },

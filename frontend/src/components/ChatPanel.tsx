@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
-import type { ChatMessage, ChatTurn } from "../lib/types";
+import type { ChatMessage } from "../lib/types";
 
 interface Props {
   userId: number | null;
@@ -69,15 +69,8 @@ export default function ChatPanel({ userId, uploaded = null }: Props) {
     setInput("");
     setBusy(true);
 
-    // 화면에 쌓인 대화를 서버에 함께 전달해 맥락을 유지한다.
-    // (안내용 메시지·로딩 중 말풍선은 제외, 최근 10턴만)
-    const history: ChatTurn[] = messages
-      .filter((m) => !m.pending && m.content)
-      .slice(-10)
-      .map((m) => ({ role: m.role, content: m.content }));
-
     try {
-      const res = await api.chat(userId, q, history);
+      const res = await api.chat(userId, q);
       setMessages((m) =>
         m.map((msg) =>
           msg.id === pendingId
