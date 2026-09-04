@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { api } from "../lib/api";
 import type { ChatMessage } from "../lib/types";
 
@@ -121,7 +123,22 @@ export default function ChatPanel({ userId, uploaded = null }: Props) {
               {m.pending ? (
                 <span className="typing"><i /><i /><i /></span>
               ) : (
-                <span className="msg__text">{m.content}</span>
+                <div className="msg__text">
+                  {/* LLM 답변에 표·굵게·목록 등 마크다운이 포함되므로 렌더링한다.
+                      remarkGfm: GitHub 스타일 표(| --- |) 지원 */}
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      table: ({ children }) => (
+                        <div className="md-table__wrap">
+                          <table className="md-table">{children}</table>
+                        </div>
+                      ),
+                    }}
+                  >
+                    {m.content}
+                  </ReactMarkdown>
+                </div>
               )}
             </div>
             {m.sources && m.sources.length > 0 && (

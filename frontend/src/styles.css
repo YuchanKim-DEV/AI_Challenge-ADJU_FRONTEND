@@ -421,3 +421,44 @@ body {
   width: 100%; min-height: 40px; border: none; border-radius: 10px;
   background: var(--accent); color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;
 }
+
+/* ---------- 답변 마크다운 ---------- */
+/* LLM 답변에 표·굵게·목록이 포함되므로 pre-wrap 대신 마크다운으로 렌더링 */
+.msg--assistant .msg__bubble { white-space: normal; }
+.msg__text > *:first-child { margin-top: 0; }
+.msg__text > *:last-child { margin-bottom: 0; }
+.msg__text p { margin: 0 0 10px; line-height: 1.7; }
+.msg__text strong { color: #fff; font-weight: 700; }
+.msg__text ul, .msg__text ol { margin: 0 0 10px; padding-left: 20px; }
+.msg__text li { margin-bottom: 5px; line-height: 1.7; }
+.msg__text h1, .msg__text h2, .msg__text h3, .msg__text h4 {
+  font-size: 14px; font-weight: 700; margin: 14px 0 8px; color: #fff;
+}
+.msg__text code {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 5px; font-size: 12px;
+}
+.msg__text pre {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; overflow-x: auto; margin: 0 0 10px;
+}
+.msg__text pre code { background: none; border: none; padding: 0; }
+.msg__text hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+.msg__text a { color: var(--accent); }
+.msg__text blockquote {
+  margin: 0 0 10px; padding-left: 12px;
+  border-left: 3px solid var(--border); color: var(--muted);
+}
+
+/* 표 — 좁은 화면에서도 가로 스크롤로 읽히게 */
+.md-table__wrap { overflow-x: auto; margin: 0 0 10px; }
+.md-table {
+  border-collapse: collapse; width: 100%; font-size: 13px;
+  background: var(--bg); border-radius: 8px; overflow: hidden;
+}
+.md-table th, .md-table td {
+  border: 1px solid var(--border); padding: 8px 11px;
+  text-align: left; vertical-align: top; line-height: 1.6;
+}
+.md-table th { background: var(--panel-2); font-weight: 600; white-space: nowrap; }
+.md-table tr:nth-child(even) td { background: rgba(255, 255, 255, 0.02); }
