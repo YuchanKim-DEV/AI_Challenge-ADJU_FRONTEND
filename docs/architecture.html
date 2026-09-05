@@ -1,0 +1,194 @@
+<meta charset="utf-8">
+<title>ADJU Care 시스템 아키텍처</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #fff;
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, sans-serif;
+    color: #1a2233;
+    padding: 26px 32px 24px;
+    width: 1000px;
+  }
+
+  .title { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
+  .sub   { font-size: 13px; color: #6b7684; margin-top: 5px; }
+  .head  { margin-bottom: 16px; padding-bottom: 11px; border-bottom: 2px solid #1a2233; }
+
+  /* 계층 박스 */
+  .tier {
+    border: 1.5px solid #c8d0dc; border-radius: 10px;
+    padding: 12px 15px 13px; background: #fff; position: relative;
+  }
+  .tier--user { background: #f5f7fa; border-style: dashed; text-align: center; padding: 11px; }
+  .tier--was1 { border-color: #4f8cff; }
+  .tier--was2 { border-color: #2f6fe4; }
+  .tier--db   { border-color: #7a8699; }
+
+  .tier__head { display: flex; align-items: baseline; gap: 9px; margin-bottom: 9px; }
+  .tier__name { font-size: 15px; font-weight: 800; }
+  .tier__role { font-size: 12.5px; color: #4a5568; }
+  .tier__spec {
+    margin-left: auto; font-size: 11px; color: #6b7684;
+    background: #f0f3f7; border-radius: 20px; padding: 3px 11px; font-weight: 600;
+  }
+  .badge {
+    font-size: 10.5px; font-weight: 700; color: #fff; border-radius: 4px;
+    padding: 2px 7px; letter-spacing: 0.2px;
+  }
+  .badge--pub { background: #e8590c; }
+  .badge--int { background: #7a8699; }
+
+  /* 내부 컴포넌트 */
+  .row  { display: flex; gap: 11px; }
+  .comp {
+    flex: 1; border: 1px solid #dde3ec; border-radius: 7px;
+    padding: 9px 12px; background: #fbfcfe;
+  }
+  .comp--accent { background: #f0f6ff; border-color: #b9d2ff; }
+  .comp__t { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+  .comp__d { font-size: 11.5px; color: #5a6675; line-height: 1.65; }
+  .comp__port {
+    display: inline-block; margin-top: 6px; font-size: 10.5px; font-weight: 700;
+    color: #2f6fe4; background: #e7f0ff; border-radius: 4px; padding: 2px 7px;
+  }
+  .comp__port--lock { color: #6b7684; background: #eef1f5; }
+
+  /* 화살표 */
+  .arrow { text-align: center; padding: 5px 0 4px; }
+  .arrow__line { font-size: 17px; color: #8b98a9; line-height: 1; }
+  .arrow__lbl {
+    display: inline-block; margin-top: 3px; font-size: 11.5px; font-weight: 700;
+    color: #2f6fe4; background: #eaf2ff; border: 1px solid #cfe0ff;
+    border-radius: 20px; padding: 3px 13px;
+  }
+  .arrow__lbl--int { color: #56637a; background: #f1f3f7; border-color: #dde2ea; }
+
+  /* 하단 설명 */
+  .notes {
+    margin-top: 15px; padding-top: 12px; border-top: 1px solid #e3e8ef;
+    display: flex; gap: 26px;
+  }
+  .note { flex: 1; }
+  .note__t { font-size: 12px; font-weight: 800; margin-bottom: 5px; }
+  .note__d { font-size: 11.5px; color: #5a6675; line-height: 1.7; }
+  .legend { display: flex; gap: 14px; align-items: center; font-size: 10.5px; color: #6b7684; margin-top: 10px; }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+</style>
+
+<div class="head">
+  <div class="title">ADJU Care 시스템 아키텍처</div>
+  <div class="sub">역할별 서버 분리 3계층 구조 · 단일 진입점 / 내부망 격리</div>
+</div>
+
+<!-- 사용자 -->
+<div class="tier tier--user">
+  <span style="font-size:14px;font-weight:700;">사용자 · 웹 브라우저</span>
+  <span style="font-size:12px;color:#6b7684;margin-left:8px;">PC · 모바일</span>
+</div>
+
+<div class="arrow">
+  <div class="arrow__line">▼</div>
+  <span class="arrow__lbl">HTTPS 443 · 공인 인증서</span>
+</div>
+
+<!-- WAS1 -->
+<div class="tier tier--was1">
+  <div class="tier__head">
+    <span class="tier__name">WAS1</span>
+    <span class="tier__role">프론트엔드 서버</span>
+    <span class="badge badge--pub">외부 공개</span>
+    <span class="tier__spec">2 Core / 4 GB / 20 GB</span>
+  </div>
+  <div class="row">
+    <div class="comp">
+      <div class="comp__t">React 화면</div>
+      <div class="comp__d">페르소나 선택 · 대화 · 보험정보 입력</div>
+    </div>
+    <div class="comp comp--accent">
+      <div class="comp__t">nginx</div>
+      <div class="comp__d">TLS 종단 · 정적 서빙 · API 리버스 프록시</div>
+      <span class="comp__port">동일 출처 처리로 CORS 불필요</span>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">
+  <div class="arrow__line">▼</div>
+  <span class="arrow__lbl arrow__lbl--int">내부망 · 18000</span>
+</div>
+
+<!-- WAS2 -->
+<div class="tier tier--was2">
+  <div class="tier__head">
+    <span class="tier__name">WAS2</span>
+    <span class="tier__role">AI 서버</span>
+    <span class="badge badge--int">내부망 전용</span>
+    <span class="tier__spec">8 Core / 16 GB / 50 GB</span>
+  </div>
+  <div class="comp comp--accent" style="margin-bottom:9px;">
+    <div class="comp__t">FastAPI · RAG 파이프라인</div>
+    <div class="comp__d">질문 임베딩 → 하이브리드 검색 → 컨텍스트 구성 → 답변 생성 · 근거 반환</div>
+  </div>
+  <div class="row">
+    <div class="comp">
+      <div class="comp__t">Gemma-4 E2B <span style="font-weight:500;color:#6b7684;">(llama.cpp)</span></div>
+      <div class="comp__d">4bit 양자화 · 컨텍스트 8192<br>자체 서버 구동으로 데이터 외부 유출 차단</div>
+      <span class="comp__port comp__port--lock">8080 · 서버 내부 전용</span>
+    </div>
+    <div class="comp">
+      <div class="comp__t">BGE-M3 임베딩</div>
+      <div class="comp__d">Dense 1024 · Sparse 250002<br>의미 검색 + 전문 용어 정확 매칭</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">
+  <div class="arrow__line">▼</div>
+  <span class="arrow__lbl arrow__lbl--int">내부망 · 15432</span>
+</div>
+
+<!-- DB -->
+<div class="tier tier--db">
+  <div class="tier__head">
+    <span class="tier__name">DB</span>
+    <span class="tier__role">데이터 서버</span>
+    <span class="badge badge--int">내부망 전용</span>
+    <span class="tier__spec">2 Core / 4 GB / 80 GB</span>
+  </div>
+  <div class="row">
+    <div class="comp">
+      <div class="comp__t">PostgreSQL 16</div>
+      <div class="comp__d">사용자 정보 · 보험 요약 · 변경 이력</div>
+    </div>
+    <div class="comp">
+      <div class="comp__t">pgvector</div>
+      <div class="comp__d">문서 임베딩 저장 · HNSW 인덱스</div>
+    </div>
+    <div class="comp">
+      <div class="comp__t">대화 이력</div>
+      <div class="comp__d">질의응답 맥락 유지</div>
+    </div>
+  </div>
+</div>
+
+<div class="notes">
+  <div class="note">
+    <div class="note__t">단일 진입점</div>
+    <div class="note__d">브라우저는 WAS1만 호출하며 API 요청은 서버 간 내부 통신으로 중계된다. AI 서버가 외부에 노출되지 않는다.</div>
+  </div>
+  <div class="note">
+    <div class="note__t">데이터 외부 유출 차단</div>
+    <div class="note__d">외부 AI API를 사용하지 않고 자체 서버에서 LLM을 구동해, 보험 정보가 외부로 전송되지 않는다.</div>
+  </div>
+  <div class="note">
+    <div class="note__t">무중단 복구</div>
+    <div class="note__d">컨테이너 재시작 정책과 서비스 자동 등록으로 서버 재부팅 시 수동 개입 없이 복구된다.</div>
+  </div>
+</div>
+
+<div class="legend">
+  <span><i class="dot" style="background:#e8590c"></i> 외부 공개 구간</span>
+  <span><i class="dot" style="background:#7a8699"></i> 내부망 격리 구간</span>
+  <span style="margin-left:auto">Team ADJU · 2026 금융 AI Challenge</span>
+</div>
